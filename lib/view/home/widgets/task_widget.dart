@@ -1,20 +1,59 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:todo_app/models/task.dart';
 import 'package:todo_app/utils/colors.dart';
+import 'package:todo_app/view/task/task_view.dart';
 
-class TaskWidget extends StatelessWidget {
-  const TaskWidget({super.key});
+class TaskWidget extends StatefulWidget {
+  const TaskWidget({
+    super.key,
+    required this.task,
+  });
+
+  final Task task;
+
+  @override
+  State<TaskWidget> createState() => _TaskWidgetState();
+}
+
+class _TaskWidgetState extends State<TaskWidget> {
+  TextEditingController taskControllerForTitle = TextEditingController();
+  TextEditingController taskControllerForSubtitle = TextEditingController();
+
+  @override
+  void initState() {
+    taskControllerForTitle.text = widget.task.title;
+    taskControllerForSubtitle.text = widget.task.subTitle;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    taskControllerForTitle.dispose();
+    taskControllerForSubtitle.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigate to Task View to see Task Details,
+        Navigator.push(
+            context,
+            CupertinoPageRoute(builder: (ctx) => TaskView(
+                titleTaskController: taskControllerForTitle,
+                descriptionTaskController: taskControllerForSubtitle,
+                task: widget.task)
+            ));
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 600),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-            color: AppColors.primaryColor.withOpacity(0.3),
+            color: widget.task.isCompleted
+                ? const Color.fromARGB(154, 119, 144, 229)
+                : Colors.white,
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
@@ -28,13 +67,15 @@ class TaskWidget extends StatelessWidget {
           // Check Icon
           leading: GestureDetector(
             onTap: () {
-              // Check or uncheck the task
+              widget.task.isCompleted = !widget.task.isCompleted;
+              widget.task.save();
             },
-
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 600),
               decoration: BoxDecoration(
-                  color: AppColors.primaryColor,
+                  color: widget.task.isCompleted
+                      ? AppColors.primaryColor
+                      : Colors.white,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.grey, width: .8)
               ),
@@ -49,10 +90,14 @@ class TaskWidget extends StatelessWidget {
           title: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              "Done",
+              taskControllerForTitle.text,
               style: TextStyle(
-                color: Colors.black,
+                color: widget.task.isCompleted
+                    ? AppColors.primaryColor : Colors.black,
                 fontWeight: FontWeight.w500,
+                decoration: widget.task.isCompleted
+                    ? TextDecoration.lineThrough
+                    : null,
               ),
             ),
           ),
@@ -62,10 +107,14 @@ class TaskWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Descriptions",
+                taskControllerForSubtitle.text,
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: widget.task.isCompleted
+                      ? AppColors.primaryColor : Colors.black,
                   fontWeight: FontWeight.w300,
+                  decoration: widget.task.isCompleted
+                      ? TextDecoration.lineThrough
+                      : null,
                 ),
               ),
 
@@ -78,17 +127,17 @@ class TaskWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Date",
+                        DateFormat("hh:mm a").format(widget.task.createdAtTime),
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey,
+                          color: widget.task.isCompleted ? Colors.white : Colors.grey,
                         ),
                       ),
                       Text(
-                        "SubDate",
+                        DateFormat.yMMMEd().format(widget.task.createdAtDate),
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey,
+                          color: widget.task.isCompleted ? Colors.white : Colors.grey,
                         ),
                       )
                     ],

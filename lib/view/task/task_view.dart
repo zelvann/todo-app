@@ -1,19 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app/extensions/space_exs.dart';
+import 'package:todo_app/main.dart';
+import 'package:todo_app/models/task.dart';
 import 'package:todo_app/utils/colors.dart';
+import 'package:todo_app/utils/constant.dart';
 import 'package:todo_app/utils/strings.dart';
 import 'package:todo_app/view/task/components/task_appbar.dart';
 
 class TaskView extends StatefulWidget {
-  const TaskView({super.key});
+  const TaskView({
+    super.key,
+    required this.titleTaskController,
+    required this.descriptionTaskController,
+    required this.task,
+  });
+
+  final TextEditingController?  titleTaskController;
+  final TextEditingController? descriptionTaskController;
+  final Task? task;
 
   @override
   State<TaskView> createState() => _TaskViewState();
 }
 
 class _TaskViewState extends State<TaskView> {
-  final TextEditingController  titleTaskController = TextEditingController();
-  final TextEditingController descriptionTaskController = TextEditingController();
+  dynamic title;
+  dynamic subTitle;
+  DateTime? time;
+  DateTime? date;
+
+  bool isTaskAlreadyExist() {
+    if(widget.titleTaskController?.text == null && widget.descriptionTaskController?.text == null) {
+      return true;
+    } else {
+       return false;
+    }
+  }
+
+  dynamic isTaskAlreadyExistUpdateOtherWiseCreate(){
+    if(widget.titleTaskController?.text != null && widget.descriptionTaskController?.text != null) {
+      try {
+        widget.titleTaskController?.text = title;
+        widget.descriptionTaskController?.text = subTitle;
+        widget.task?.save();
+
+        Navigator.pop(context);
+      } catch(e) {
+        updateTaskWarning(context);
+      }
+    } else {
+      if(title != null && subTitle != null) {
+        var task = Task.create(title: title, subTitle: subTitle, createdAtDate: DateTime.now(), createdAtTime: DateTime.now());
+        BaseWidget.of(context).dataStore.addTask(task: task);
+        Navigator.pop(context);
+      } else {
+        emptyWarning(context);
+      }
+    }
+  }
+
+  dynamic deleteTask() {
+    return widget.task?.delete();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +94,7 @@ class _TaskViewState extends State<TaskView> {
                     ),
                     RichText(
                       text: TextSpan(
-                        text: AppString.addNewTask,
+                        text: isTaskAlreadyExist() ? AppString.addNewTask: AppString.updateCurrentTask,
                         style: textTheme.titleLarge,
                         children: const [
                           TextSpan(
@@ -86,7 +134,7 @@ class _TaskViewState extends State<TaskView> {
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         child: ListTile(
                           title: TextFormField(
-                            controller: titleTaskController,
+                            controller: widget.titleTaskController,
                             maxLines: 6,
                             cursorHeight: 60,
                             style: TextStyle(
@@ -104,11 +152,11 @@ class _TaskViewState extends State<TaskView> {
                                 ),
                               ),
                             ),
-                            onFieldSubmitted: (value) {
-                          
+                            onFieldSubmitted: (String inputTitle) {
+                              title = inputTitle;
                             },
-                            onChanged: (value) {
-                          
+                            onChanged: (String inputTitle) {
+                              title = inputTitle;
                             },
                           ),
                         ),
@@ -119,7 +167,7 @@ class _TaskViewState extends State<TaskView> {
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         child: ListTile(
                           title: TextFormField(
-                            controller: descriptionTaskController,
+                            controller: widget.descriptionTaskController,
                             maxLines: null,
                             cursorHeight: null,
                             style: TextStyle(
@@ -144,11 +192,11 @@ class _TaskViewState extends State<TaskView> {
                                 ),
                               ),
                             ),
-                            onFieldSubmitted: (value) {
-
+                            onFieldSubmitted: (String inputSubTitle) {
+                              subTitle = inputSubTitle;
                             },
-                            onChanged: (value) {
-
+                            onChanged: (String inputSubTitle) {
+                              subTitle = inputSubTitle;
                             },
                           ),
                         ),
@@ -156,11 +204,13 @@ class _TaskViewState extends State<TaskView> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: isTaskAlreadyExist() ? MainAxisAlignment.center : MainAxisAlignment.spaceEvenly,
                           children: [
-                            // Delete Task Button
-                            MaterialButton(
-                              onPressed: (){},
+                            isTaskAlreadyExist() ? Container(): MaterialButton(
+                              onPressed: (){
+                                deleteTask();
+                                Navigator.pop(context);
+                              },
                               minWidth: 150,
                               color: Colors.white,
                               shape: RoundedRectangleBorder(
@@ -185,7 +235,7 @@ class _TaskViewState extends State<TaskView> {
                             ),
                             MaterialButton(
                               onPressed: (){
-                                // Add or Update Task
+                                isTaskAlreadyExistUpdateOtherWiseCreate();
                               },
                               minWidth: 150,
                               color: AppColors.primaryColor,
@@ -193,8 +243,8 @@ class _TaskViewState extends State<TaskView> {
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               height: 55,
-                              child: const Text(
-                                AppString.addTaskString,
+                              child: Text(
+                                isTaskAlreadyExist() ? AppString.addTaskString : AppString.updateTaskString,
                                 style: TextStyle(
                                   color: Colors.white,
                                 ),

@@ -8,6 +8,12 @@ Future<void> main() async {
   await Hive.initFlutter();
   // Register adapter
   Hive.registerAdapter<Task>(TaskAdapter());
+  Box box = await Hive.openBox<Task>(HiveDataStore.boxName);
+  for (var task in box.values) {
+    if (task.createdAtTime.day != DateTime.now().day) {
+      task.delete();
+    } else {}
+  }
   runApp(BaseWidget(child: const MyApp()));
 }
 
