@@ -1,9 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:todo_app/models/task.dart';
+import 'package:todo_app/store/hive_data.dart';
 import 'package:todo_app/view/home/home_view.dart';
-import 'package:todo_app/view/task/task_view.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  await Hive.initFlutter();
+  // Register adapter
+  Hive.registerAdapter<Task>(TaskAdapter());
+  runApp(BaseWidget(child: const MyApp()));
+}
+
+class BaseWidget extends InheritedWidget {
+  BaseWidget({
+    Key? key,
+    required this.child
+  }): super(key: key,child: child);
+
+  final Widget child;
+  final HiveDataStore dataStore = HiveDataStore();
+
+  static BaseWidget of(BuildContext context) {
+    final base = context.dependOnInheritedWidgetOfExactType<BaseWidget>();
+    if(base != null) {
+      return base;
+    } else {
+      throw StateError("Could not find ancestor widget of type BaseWidget");
+    }
+  }
+
+  @override
+  bool updateShouldNotify(covariant InheritedWidget oldWidget) {
+    return false;
+  }
 }
 
 class MyApp extends StatelessWidget {
