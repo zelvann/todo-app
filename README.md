@@ -1,4 +1,4 @@
-# trackizer
+# todo-app
 
 A new Flutter project.
 
