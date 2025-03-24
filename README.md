@@ -1,16 +1,26 @@
-# todo-app
+*This is a submission for the Mobile Programming's Assignment 1*
 
-A new Flutter project.
+## What I Built
+I built a simple <strong>To-Do</strong> App that allows users to manage their tasks efficiently. The app performs <strong>CRUD (Create, Read, Update, Delete) operations </strong> using <strong>Hive</strong>, a lightweight and fast NoSQL database for Flutter.
 
-## Getting Started
+### Installation & Setup
+```bash
+git clone https://github.com/zelvann/todo-app.git
+cd todo-app
+```
+Then install dependencies, 
+```bash
+flutter pub get
+```
+After that, run the app
+```bash
+flutter run
+```
 
-This project is a starting point for a Flutter application.
+### Usage
+- Click the + button to <strong>add</strong> a new task.
+- Tap a task to <strong>edit</strong> it.
+- Swipe left/right to <strong>delete</strong> a task.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+#### Reference
+[https://www.youtube.com/playlist?list=PLWhSmdyhZUVSZBXZUEUNQnEPZwrhzMz_H](https://www.youtube.com/playlist?list=PLWhSmdyhZUVSZBXZUEUNQnEPZwrhzMz_H)
